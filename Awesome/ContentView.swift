@@ -9,38 +9,55 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var message = ""
+    @State private var messageNumber = 0
     @State private var imageName = ""
+    @State private var imageNumber = 0
     
     var body: some View {
         VStack {
-            Spacer()
-            Image(imageName)
-                .resizable()
-                .scaledToFit()
             Text(message)
                 .font(.largeTitle)
                 .fontWeight(.heavy)
                 .foregroundStyle(.red)
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.5)
+                .frame(height: 100)
+                .animation(.easeInOut(duration: 0.15), value: message)
+
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                .clipShape(RoundedRectangle(cornerRadius: 30))
+                .animation(.default, value: imageName)
+            
             
             Spacer()
             
-            Button("Press Me!") {
-                let message1 = "You Are Awesome!"
-                let message2 = "You Are Great!"
-                let image1 = "image1"
-                let image2 = "image0"
+            Button("Show Message") {
+                let messages = ["You're awesome",
+                                "bellisima the genius bar is calling for you and im astonished at houw magnificient you are",
+                                "Hey there",
+                                "You're great",
+                                "fabulous? thats u",
+                                "hey gorjus"]
                 
-                message = (message == message1 ? message2 : message1)
+                message = messages[messageNumber]
+                messageNumber += 1
+                if messageNumber == messages.count {
+                    messageNumber = 0
+                }
                 
-                imageName = (message == message1 ? image2 : image1)
+//                let message1 = "You Are Awesome!"
+//                let message2 = "You Are Great!"
+//                message = (message == message1 ? message2 : message1)
                 
-//                if message == message1 {
-//                    message = message2
-//                    imageName = "hand.thumbsup"
-//                } else {
-//                    message = message1
-//                    imageName = "sun.max.fill"
-//                }
+                imageName = "image\(imageNumber)"
+
+                imageNumber += 1
+                
+                if imageNumber > 9 {
+                    imageNumber = 0
+                }
             }
             .buttonStyle(.borderedProminent)
             .font(.title2)
