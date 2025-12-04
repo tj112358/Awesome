@@ -9,9 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var message = ""
-    @State private var messageNumber = 0
     @State private var imageName = ""
-    @State private var imageNumber = 0
+    @State private var oldNumber = 0
+    @State private var oldMessage = ""
     
     var body: some View {
         VStack {
@@ -41,23 +41,21 @@ struct ContentView: View {
                                 "fabulous? thats u",
                                 "hey gorjus"]
                 
-                message = messages[messageNumber]
-                messageNumber += 1
-                if messageNumber == messages.count {
-                    messageNumber = 0
-                }
+                var newMessage = ""
+                repeat {
+                    newMessage = messages.randomElement() ?? "Error: message not found"
+                } while newMessage == oldMessage
                 
-//                let message1 = "You Are Awesome!"
-//                let message2 = "You Are Great!"
-//                message = (message == message1 ? message2 : message1)
+                message = newMessage
+                oldMessage = newMessage
                 
-                imageName = "image\(imageNumber)"
-
-                imageNumber += 1
+                var newNumber = 0
+                repeat {
+                    newNumber = Int.random(in: 0...9)
+                } while newNumber == oldNumber
                 
-                if imageNumber > 9 {
-                    imageNumber = 0
-                }
+                imageName = "image\(newNumber)"
+                oldNumber = newNumber
             }
             .buttonStyle(.borderedProminent)
             .font(.title2)
