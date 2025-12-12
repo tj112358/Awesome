@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 struct ContentView: View {
     @State private var message = ""
     @State private var imageName = ""
     @State private var oldNumber = 0
-    @State private var oldMessage = ""
+    @State private var oldMessage = 0
+    @State private var oldSound = 0
+    @State private var soundName = ""
+    @State private var audioPlayer: AVAudioPlayer!
+    @State private var soundIsOn = true
+    let numberOfImages = 10
+    let numberOfSounds = 6
     
     var body: some View {
         VStack {
@@ -23,6 +30,8 @@ struct ContentView: View {
                 .minimumScaleFactor(0.5)
                 .frame(height: 100)
                 .animation(.easeInOut(duration: 0.15), value: message)
+            
+            Spacer()
 
             Image(imageName)
                 .resizable()
@@ -33,35 +42,67 @@ struct ContentView: View {
             
             Spacer()
             
-            Button("Show Message") {
-                let messages = ["You're awesome",
-                                "bellisima the genius bar is calling for you and im astonished at houw magnificient you are",
-                                "Hey there",
-                                "You're great",
-                                "fabulous? thats u",
-                                "hey gorjus"]
-                
-                var newMessage = ""
-                repeat {
-                    newMessage = messages.randomElement() ?? "Error: message not found"
-                } while newMessage == oldMessage
-                
-                message = newMessage
-                oldMessage = newMessage
-                
-                var newNumber = 0
-                repeat {
-                    newNumber = Int.random(in: 0...9)
-                } while newNumber == oldNumber
-                
-                imageName = "image\(newNumber)"
-                oldNumber = newNumber
+            HStack {
+                Text("Sound On:")
+                Toggle("", isOn: $soundIsOn)
+                    .onChange(of: soundIsOn) {
+                        if audioPlayer != nil && audioPlayer.isPlaying {
+                            audioPlayer.stop()
+                        }
+                    }
+                    .labelsHidden()
+                Spacer()
+                Button("Show Message") {
+                    let messages = ["You're awesome",
+                                    "bellisima the genius bar is calling for you and im astonished at houw magnificient you are",
+                                    "Hey there",
+                                    "You're great",
+                                    "fabulous? thats u",
+                                    "hey gorjus"]
+                    
+                    //For messages
+                    oldMessage = nonRepeatingRandom(lastNumber: oldMessage, upperBounds: messages.count-1)
+                    message = messages[oldMessage]
+                    
+                    //For images
+                    oldNumber = nonRepeatingRandom(lastNumber: oldNumber, upperBounds: numberOfImages-1)
+                    imageName = "image\(oldNumber)"
+                    
+                    //For sounds
+                    oldSound = nonRepeatingRandom(lastNumber: oldSound, upperBounds: numberOfSounds-1)
+                    soundName = "sound\(oldSound)"
+                    
+                    if soundIsOn {
+                        if audioPlayer != nil && audioPlayer.isPlaying {
+                            audioPlayer.stop()
+                        }
+                        guard let soundFile = NSDataAsset(name: soundName) else{
+                            print("😡 Could not read file named \(soundName)")
+                            return
+                        }
+                        
+                        do {
+                            audioPlayer = try AVAudioPlayer(data: soundFile.data)
+                            audioPlayer.play()
+                        } catch {
+                            print("😡 ERROR: \(error.localizedDescription) creating audioPlayer")
+                        }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .font(.title2)
+                .tint(.pink)
             }
-            .buttonStyle(.borderedProminent)
-            .font(.title2)
-            .tint(.pink)
         }
         .padding()
+    }
+    
+    func nonRepeatingRandom(lastNumber: Int, upperBounds: Int) -> Int {
+        var newNumber = 0
+        repeat {
+            newNumber = Int.random(in: 0...upperBounds)
+        } while newNumber == lastNumber
+        return newNumber
     }
 }
 
